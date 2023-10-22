@@ -7,7 +7,7 @@ from django.contrib.auth.models import User
 class Product(models.Model):
     name = models.CharField(max_length=255)
     description = models.TextField()
-    image = models.ImageField(upload_to='product_images/')
+    image = models.ImageField(upload_to='product_images',default="product_images/books.png")
     price = models.DecimalField(max_digits=10, decimal_places=2)
     stock = models.PositiveIntegerField()
 
@@ -29,3 +29,4 @@ class CartItem(models.Model):
 
     def __str__(self):
         return f"{self.quantity} x {self.product.name} in Cart ({self.cart.user.username})"
+    
