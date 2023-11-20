@@ -20,7 +20,6 @@ def products(request):
             all_products = all_products.filter(name__icontains=search)
         if maxprice:
             all_products = all_products.filter(price__lte=maxprice)
-        print(category)   
         if category:
             # Ensure the category name is case-insensitive by using '__iexact'
             all_products = all_products.filter(category__iexact=category)
