@@ -1,3 +1,4 @@
+from django.http import JsonResponse
 from rest_framework import status
 from .models import CartItem, Product,Cart
 from .serializers import CartItemSerializer, CartSerializer, ProductSerializer
@@ -17,10 +18,12 @@ def products(request):
         # Search for products based on query parameters
         if search:
             all_products = all_products.filter(name__icontains=search)
-        # if maxprice:
-        #     all_products = all_products.filter(price__lte=maxprice)
-        # if category:
-        #     all_products = all_products.filter(category__id=category)
+        if maxprice:
+            all_products = all_products.filter(price__lte=maxprice)
+        print(category)   
+        if category:
+            # Ensure the category name is case-insensitive by using '__iexact'
+            all_products = all_products.filter(category__iexact=category)
 
         # Serialize the products and return as JSON response
         all_products_json = ProductSerializer(all_products, many=True).data
@@ -32,6 +35,12 @@ def products(request):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+def get_unique_categories(request):
+    if request.method == 'GET':
+        categories = Product.objects.values_list('category', flat=True).distinct()
+        unique_categories = list(categories)
+        return JsonResponse(unique_categories, safe=False, status=status.HTTP_200_OK)
 
 @api_view(['GET', 'PUT', 'DELETE'])
 def product_detail(request, id):

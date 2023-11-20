@@ -20,6 +20,18 @@ class Product(models.Model):
     price = models.DecimalField(max_digits=10, decimal_places=2)
     stock = models.PositiveIntegerField()
 
+    CATEGORY_CHOICES = [
+        ('Electronics', 'Electronics'),
+        ('Clothing', 'Clothing'),
+        ('Books', 'Books'),
+        ('Toys', 'Toys'),
+        ('Home_appliances', 'Home Appliances'),
+        ('Other', 'Other'),
+    ]
+
+    category = models.CharField(max_length=20, choices=CATEGORY_CHOICES, default='Other')
+
+
     def __str__(self):
         return self.name
     
