@@ -4,6 +4,7 @@ from My_Store import views
 
 
 urlpatterns = [
+    path('', views.welcome_page, name='welcome_page'),
     path('products/', views.products, name='all_products'),
     path('products/<id>', views.product_detail, name="product_detail"),
     path('products/category/', views.get_unique_categories, name='unique_categories'),
