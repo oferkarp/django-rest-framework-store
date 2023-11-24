@@ -18,6 +18,8 @@ def welcome_page(request):
             "cart_detail": "/carts/<id>",
             "cart_items": "/cart_items/",
             "cart_item_detail": "/cart_items/<id>",
+            "token": "/token/",
+            "token_refresh": "/token/refresh/",
         },
         "additional_info": "Replace <id> with the respective ID in the URL."
     }
