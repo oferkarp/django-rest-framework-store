@@ -4,6 +4,7 @@ from .models import CartItem, Product,Cart
 from .serializers import CartItemSerializer, CartSerializer, ProductSerializer
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
+from My_Store.models import CustomUser  # Import your CustomUser model
 
 
 @api_view(['GET'])
@@ -161,3 +162,11 @@ def cart_item_detail(request, id):
     elif request.method == 'DELETE':
         cart_item.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+    
+def get_username_by_id(request, user_id):
+    try:
+        user = CustomUser.objects.get(pk=user_id)
+        username = user.username
+        return JsonResponse({'username': username})
+    except CustomUser.DoesNotExist:
+        return JsonResponse({'error': 'User not found'}, status=404)
