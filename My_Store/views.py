@@ -21,6 +21,7 @@ def welcome_page(request):
             "cart_item_detail": "/cart_items/<id>",
             "token": "/token/",
             "token_refresh": "/token/refresh/",
+            "user_name":"/user/<id>",
         },
         "additional_info": "Replace <id> with the respective ID in the URL."
     }
