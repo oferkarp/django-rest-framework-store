@@ -1,7 +1,7 @@
 from django.http import JsonResponse
 from rest_framework import status
 from .models import CartItem, Product,Cart
-from .serializers import CartItemSerializer, CartSerializer, ProductSerializer
+from .serializers import CartItemSerializer, CartSerializer, CustomUserSerializer, ProductSerializer
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from My_Store.models import CustomUser  # Import your CustomUser model
@@ -171,3 +171,15 @@ def get_username_by_id(request, user_id):
         return JsonResponse({'username': username})
     except CustomUser.DoesNotExist:
         return JsonResponse({'error': 'User not found'}, status=404)
+    
+
+@api_view(['POST'])
+def user_registration(request):
+    if request.method == 'POST':
+        serializer = CustomUserSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    else:
+        return Response("Method not allowed", status=status.HTTP_405_METHOD_NOT_ALLOWED)
