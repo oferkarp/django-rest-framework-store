@@ -4,7 +4,7 @@ from .models import CartItem, Product,Cart
 from .serializers import CartItemSerializer, CartSerializer, CustomUserSerializer, ProductSerializer
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
-from My_Store.models import CustomUser 
+from My_Store.models import CustomUser  # Import your CustomUser model
 from rest_framework.permissions import IsAuthenticated
 
 
@@ -19,14 +19,17 @@ def welcome_page(request):
             "carts": "/carts/",
             "cart_detail": "/carts/<id>",
             "cart_items": "/cart_items/",
-            "cart_item_detail": "/cart_items/<id>",
+            "user_cart_items": "user_cart_items/<int:user_id>",
             "token": "/token/",
             "token_refresh": "/token/refresh/",
-            "user_name":"/user/<id>",
+            "user_name":"/user/<id>/",
+            "user-registration":"/register/",
         },
         "additional_info": "Replace <id> with the respective ID in the URL."
     }
     return Response(api_endpoints)
+
+# ******************************************************************************
 
 
 @api_view(['GET', 'POST'])
@@ -58,11 +61,17 @@ def products(request):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
+# ******************************************************************************
+
+
 def get_unique_categories(request):
     if request.method == 'GET':
         categories = Product.objects.values_list('category', flat=True).distinct()
         unique_categories = list(categories)
         return JsonResponse(unique_categories, safe=False, status=status.HTTP_200_OK)
+
+# ******************************************************************************
+
 
 @api_view(['GET', 'PUT', 'DELETE'])
 def product_detail(request, id):
@@ -104,8 +113,10 @@ def carts(request):
             return Response(cart_serializer.data, status=status.HTTP_201_CREATED)
         return Response(cart_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+# ******************************************************************************
+
 @api_view(['GET', 'PUT', 'DELETE'])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
 def cart_detail(request, id):
     try:
         cart = Cart.objects.get(pk=id, user=request.user)  # Only retrieve the cart associated with the logged-in user
@@ -143,28 +154,16 @@ def cart_items(request):
             return Response(cart_item_serializer.data, status=status.HTTP_201_CREATED)
         return Response(cart_item_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-@api_view(['GET', 'PUT', 'DELETE'])
-def cart_item_detail(request, id):
+@api_view(['GET'])
+def user_cart_items(request, user_id):
     try:
-        cart_item = CartItem.objects.get(pk=id)
+        cart_items = CartItem.objects.filter(user=user_id)
     except CartItem.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
     
     if request.method == 'GET':
-        cart_item_serializer = CartItemSerializer(cart_item)
-        return Response(cart_item_serializer.data)
-    
-    elif request.method == 'PUT':
-        cart_item_serializer = CartItemSerializer(cart_item, data=request.data)
-        if cart_item_serializer.is_valid():
-            cart_item_serializer.save()
-            return Response(cart_item_serializer.data)
-        return Response(cart_item_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
-    elif request.method == 'DELETE':
-        cart_item.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
-    
+        cart_items_serializer = CartItemSerializer(cart_items, many=True)
+        return Response(cart_items_serializer.data)
 
 # ******************************************************************************
     
@@ -176,6 +175,9 @@ def get_username_by_id(request, user_id):
     except CustomUser.DoesNotExist:
         return JsonResponse({'error': 'User not found'}, status=404)
     
+
+
+# ******************************************************************************
 
 @api_view(['POST'])
 def user_registration(request):
