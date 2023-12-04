@@ -44,6 +44,7 @@ class Cart(models.Model):
         return f"Cart for {self.user.username}"
     
 class CartItem(models.Model):
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     cart = models.ForeignKey(Cart, on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField(default=1)  # Default quantity is set to 1
