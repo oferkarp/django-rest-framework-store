@@ -3,8 +3,9 @@ from rest_framework import status
 from .models import CartItem, Product,Cart
 from .serializers import CartItemSerializer, CartSerializer, CustomUserSerializer, ProductSerializer
 from rest_framework.response import Response
-from rest_framework.decorators import api_view
-from My_Store.models import CustomUser  # Import your CustomUser model
+from rest_framework.decorators import api_view, permission_classes
+from My_Store.models import CustomUser 
+from rest_framework.permissions import IsAuthenticated
 
 
 @api_view(['GET'])
@@ -87,7 +88,7 @@ def product_detail(request, id):
 
 
 
-# ************************
+# ******************************************************************************
 
 @api_view(['GET', 'POST'])
 def carts(request):
@@ -104,9 +105,10 @@ def carts(request):
         return Response(cart_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET', 'PUT', 'DELETE'])
+@permission_classes([IsAuthenticated])
 def cart_detail(request, id):
     try:
-        cart = Cart.objects.get(pk=id)
+        cart = Cart.objects.get(pk=id, user=request.user)  # Only retrieve the cart associated with the logged-in user
     except Cart.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
     
@@ -124,9 +126,8 @@ def cart_detail(request, id):
     elif request.method == 'DELETE':
         cart.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
-    
 
-# **************
+# ******************************************************************************
 
 @api_view(['GET', 'POST'])
 def cart_items(request):
@@ -163,6 +164,9 @@ def cart_item_detail(request, id):
     elif request.method == 'DELETE':
         cart_item.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+    
+
+# ******************************************************************************
     
 def get_username_by_id(request, user_id):
     try:
