@@ -16,7 +16,7 @@ class CustomUser(AbstractUser):
 class Product(models.Model):
     name = models.CharField(max_length=255)
     description = models.TextField()
-    image = models.ImageField(upload_to='product_images',default="product_images/books.png")
+    image = models.ImageField(upload_to='product_images',default="product_images/default_image.png")
     price = models.DecimalField(max_digits=10, decimal_places=2)
     stock = models.PositiveIntegerField()
 
