@@ -159,6 +159,8 @@ def cart_items(request):
             return Response(cart_item_serializer.data, status=status.HTTP_201_CREATED)
         return Response(cart_item_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+# ******************************************************************************
+
 @api_view(['GET'])
 def user_cart_items(request, user_id):
     try:
@@ -201,7 +203,7 @@ def user_registration(request):
 @api_view(['DELETE'])
 def delete_cart_item(request, user_id, product_id):
     try:
-        cart_item = CartItem.objects.get(user=user_id, product=product_id)
+        cart_item = CartItem.objects.filter(user=user_id, product=product_id)
         cart_item.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
     except CartItem.DoesNotExist:
