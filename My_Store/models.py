@@ -35,18 +35,18 @@ class Product(models.Model):
     def __str__(self):
         return self.name
     
-class Cart(models.Model):
-    is_paid = models.BooleanField(default=False)
+class Order(models.Model):
     create_date = models.DateTimeField(auto_now_add=True)
-    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
 
     def __str__(self):
-        return f"Cart for {self.user.username}"
+        return f"Cart for {self.create_date}"
     
 class CartItem(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField(default=1)  # Default quantity is set to 1
+    order= models.ForeignKey(Order,null=True, on_delete=models.CASCADE)
+
 
     def __str__(self):
-        return f"{self.quantity} x {self.product.name} in Cart ({self.user.username})"
+        return f"{self.quantity} x {self.product.name} in Cart ({self.user.username} order = {self.order})"

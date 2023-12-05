@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Product, Cart, CartItem, CustomUser
+from .models import Product, Order, CartItem, CustomUser
 
 class ProductSerializer(serializers.ModelSerializer):
     class Meta:
@@ -11,11 +11,11 @@ class CartItemSerializer(serializers.ModelSerializer):
         model = CartItem
         fields = '__all__'
 
-class CartSerializer(serializers.ModelSerializer):
-    cart_items = CartItemSerializer(many=True, read_only=True)
+class OrderSerializer(serializers.ModelSerializer):
+    Order_items = CartItemSerializer(many=True, read_only=True)
 
     class Meta:
-        model = Cart
+        model = Order
         fields = '__all__'
 
 

@@ -1,10 +1,9 @@
 from django.http import JsonResponse
 from rest_framework import status
-from .models import CartItem, Product,Cart
-from .serializers import CartItemSerializer, CartSerializer, CustomUserSerializer, ProductSerializer
+from .models import CartItem, Product,Order ,CustomUser
+from .serializers import CartItemSerializer, OrderSerializer, CustomUserSerializer, ProductSerializer
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
-from My_Store.models import CustomUser  # Import your CustomUser model
 from rest_framework.permissions import IsAuthenticated
 
 
@@ -104,44 +103,44 @@ def product_detail(request, id):
 
 # ******************************************************************************
 
-@api_view(['GET', 'POST'])
-def carts(request):
-    if request.method == 'GET':
-        all_carts = Cart.objects.all()
-        cart_serializer = CartSerializer(all_carts, many=True)
-        return Response(cart_serializer.data)
+# @api_view(['GET', 'POST'])
+# def carts(request):
+#     if request.method == 'GET':
+#         all_Orders = Order.objects.all()
+#         Order_serializer = OrderSerializer(all_Orders, many=True)
+#         return Response(Order_serializer.data)
     
-    elif request.method == 'POST':
-        cart_serializer = CartSerializer(data=request.data)
-        if cart_serializer.is_valid():
-            cart_serializer.save()
-            return Response(cart_serializer.data, status=status.HTTP_201_CREATED)
-        return Response(cart_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+#     elif request.method == 'POST':
+#         cart_serializer = OrderSerializer(data=request.data)
+#         if cart_serializer.is_valid():
+#             cart_serializer.save()
+#             return Response(cart_serializer.data, status=status.HTTP_201_CREATED)
+#         return Response(cart_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 # ******************************************************************************
 
-@api_view(['GET', 'PUT', 'DELETE'])
-# @permission_classes([IsAuthenticated])
-def cart_detail(request, id):
-    try:
-        cart = Cart.objects.get(pk=id, user=request.user)  # Only retrieve the cart associated with the logged-in user
-    except Cart.DoesNotExist:
-        return Response(status=status.HTTP_404_NOT_FOUND)
+# @api_view(['GET', 'PUT', 'DELETE'])
+# # @permission_classes([IsAuthenticated])
+# def cart_detail(request, id):
+#     try:
+#         cart = Order.objects.get(pk=id, user=request.user)  # Only retrieve the cart associated with the logged-in user
+#     except Order.DoesNotExist:
+#         return Response(status=status.HTTP_404_NOT_FOUND)
     
-    if request.method == 'GET':
-        cart_serializer = CartSerializer(cart)
-        return Response(cart_serializer.data)
+#     if request.method == 'GET':
+#         cart_serializer = OrderSerializer(cart)
+#         return Response(cart_serializer.data)
     
-    elif request.method == 'PUT':
-        cart_serializer = CartSerializer(cart, data=request.data)
-        if cart_serializer.is_valid():
-            cart_serializer.save()
-            return Response(cart_serializer.data)
-        return Response(cart_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+#     elif request.method == 'PUT':
+#         cart_serializer = OrderSerializer(cart, data=request.data)
+#         if cart_serializer.is_valid():
+#             cart_serializer.save()
+#             return Response(cart_serializer.data)
+#         return Response(cart_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
-    elif request.method == 'DELETE':
-        cart.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+#     elif request.method == 'DELETE':
+#         cart.delete()
+#         return Response(status=status.HTTP_204_NO_CONTENT)
 
 # ******************************************************************************
 
@@ -208,3 +207,12 @@ def delete_cart_item(request, user_id, product_id):
         return Response(status=status.HTTP_204_NO_CONTENT)
     except CartItem.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
+
+
+
+    # new_order = Order()
+    # new_order.save()
+    # cartItems = CartItem.objects.all() # bring cart items for this user. (all cart items that order = null)
+    # for item in cartItems:
+    #     item.order = new_order
+    #     item.save()
