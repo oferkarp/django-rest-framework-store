@@ -8,6 +8,9 @@ from My_Store.models import CustomUser  # Import your CustomUser model
 from rest_framework.permissions import IsAuthenticated
 
 
+# ****************
+# **welcome_page**
+# ****************
 @api_view(['GET'])
 def welcome_page(request):
     api_endpoints = {
@@ -62,7 +65,9 @@ def products(request):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
 # ******************************************************************************
-
+# ****************
+# **categories**
+# ****************
 
 def get_unique_categories(request):
     if request.method == 'GET':
@@ -189,3 +194,17 @@ def user_registration(request):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     else:
         return Response("Method not allowed", status=status.HTTP_405_METHOD_NOT_ALLOWED)
+   
+    
+# ******************************************************************************
+
+@api_view(['DELETE'])
+def delete_cart_item(request, product_id):
+    try:
+        # Assuming a logged-in user and you have a way to retrieve the user ID
+        user_id = request.user.id  # Get the user ID from the request (assuming user is authenticated)
+        cart_item = CartItem.objects.get(user=user_id, product=product_id)
+        cart_item.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+    except CartItem.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
