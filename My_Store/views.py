@@ -194,15 +194,13 @@ def user_registration(request):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     else:
         return Response("Method not allowed", status=status.HTTP_405_METHOD_NOT_ALLOWED)
-   
-    
+
+
 # ******************************************************************************
 
 @api_view(['DELETE'])
-def delete_cart_item(request, product_id):
+def delete_cart_item(request, user_id, product_id):
     try:
-        # Assuming a logged-in user and you have a way to retrieve the user ID
-        user_id = request.user.id  # Get the user ID from the request (assuming user is authenticated)
         cart_item = CartItem.objects.get(user=user_id, product=product_id)
         cart_item.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
