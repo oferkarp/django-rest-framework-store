@@ -77,11 +77,12 @@ def get_unique_categories(request):
         return JsonResponse(unique_categories, safe=False, status=status.HTTP_200_OK)
 
 
-# ************************
-# **not use in the front**
-# ************************
+# *************************
+# **action on product get**
+# *************************
 
 @api_view(['GET', 'PUT', 'DELETE'])
+@permission_classes([IsAuthenticated])
 def product_detail(request, id):
     try:
         product = Product.objects.get(pk=id)
@@ -125,8 +126,8 @@ def orders(request):
 # **show all the cart items**
 # ***************************
 
-# # @permission_classes([IsAuthenticated])
 @api_view(['GET', 'POST'])
+@permission_classes([IsAuthenticated])
 def cart_items(request):
     if request.method == 'GET':
         all_cart_items = CartItem.objects.all()
