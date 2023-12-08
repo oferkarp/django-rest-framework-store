@@ -5,7 +5,7 @@ from .serializers import CartItemSerializer, OrderSerializer, CustomUserSerializ
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 
 
 # ****************
@@ -236,16 +236,15 @@ def checkout_view(request):
 @api_view(['POST'])
 def clear_cart(request, user_id):
     if request.method == 'POST':
+        CustomUser = get_user_model()  # Fetch your CustomUser model
+
         try:
-            user = User.objects.get(id=user_id)
-        except User.DoesNotExist:
+            user = CustomUser.objects.get(id=user_id)
+        except CustomUser.DoesNotExist:
             return Response({'error': 'Invalid user ID'}, status=status.HTTP_404_NOT_FOUND)
 
-        # Clear cart items for the user where order is null
         CartItem.objects.filter(user=user, order__isnull=True).delete()
 
         return Response({'message': 'Cart cleared successfully'}, status=status.HTTP_200_OK)
 
     return Response({'error': 'Invalid request'}, status=status.HTTP_400_BAD_REQUEST)
-
-
