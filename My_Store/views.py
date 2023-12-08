@@ -5,11 +5,13 @@ from .serializers import CartItemSerializer, OrderSerializer, CustomUserSerializ
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
+from django.contrib.auth.models import User
 
 
 # ****************
 # **welcome_page**
 # ****************
+
 @api_view(['GET'])
 def welcome_page(request):
     api_endpoints = {
@@ -18,8 +20,6 @@ def welcome_page(request):
             "all_products": "/products/",
             "product_detail": "/products/<id>",
             "unique_categories": "/products/category/",
-            "carts": "/carts/",
-            "cart_detail": "/carts/<id>",
             "cart_items": "/cart_items/",
             "user_cart_items": "user_cart_items/<int:user_id>",
             "token": "/token/",
@@ -63,10 +63,9 @@ def products(request):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
-# ******************************************************************************
-# ****************
-# **categories**
-# ****************
+# ******************
+# **get categories**
+# ******************
 
 def get_unique_categories(request):
     if request.method == 'GET':
@@ -103,44 +102,19 @@ def product_detail(request, id):
 
 # ******************************************************************************
 
-# @api_view(['GET', 'POST'])
-# def carts(request):
-#     if request.method == 'GET':
-#         all_Orders = Order.objects.all()
-#         Order_serializer = OrderSerializer(all_Orders, many=True)
-#         return Response(Order_serializer.data)
+@api_view(['GET', 'POST'])
+def orders(request):
+    if request.method == 'GET':
+        all_Orders = Order.objects.all()
+        Order_serializer = OrderSerializer(all_Orders, many=True)
+        return Response(Order_serializer.data)
     
-#     elif request.method == 'POST':
-#         cart_serializer = OrderSerializer(data=request.data)
-#         if cart_serializer.is_valid():
-#             cart_serializer.save()
-#             return Response(cart_serializer.data, status=status.HTTP_201_CREATED)
-#         return Response(cart_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-# ******************************************************************************
-
-# @api_view(['GET', 'PUT', 'DELETE'])
-# # @permission_classes([IsAuthenticated])
-# def cart_detail(request, id):
-#     try:
-#         cart = Order.objects.get(pk=id, user=request.user)  # Only retrieve the cart associated with the logged-in user
-#     except Order.DoesNotExist:
-#         return Response(status=status.HTTP_404_NOT_FOUND)
-    
-#     if request.method == 'GET':
-#         cart_serializer = OrderSerializer(cart)
-#         return Response(cart_serializer.data)
-    
-#     elif request.method == 'PUT':
-#         cart_serializer = OrderSerializer(cart, data=request.data)
-#         if cart_serializer.is_valid():
-#             cart_serializer.save()
-#             return Response(cart_serializer.data)
-#         return Response(cart_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
-#     elif request.method == 'DELETE':
-#         cart.delete()
-#         return Response(status=status.HTTP_204_NO_CONTENT)
+    elif request.method == 'POST':
+        order_serializer = OrderSerializer(data=request.data)
+        if order_serializer.is_valid():
+            order_serializer.save()
+            return Response(order_serializer.data, status=status.HTTP_201_CREATED)
+        return Response(order_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 # ******************************************************************************
 
@@ -160,6 +134,8 @@ def cart_items(request):
 
 # ******************************************************************************
 
+
+# # @permission_classes([IsAuthenticated])
 @api_view(['GET'])
 def user_cart_items(request, user_id):
     try:
@@ -209,6 +185,33 @@ def delete_cart_item(request, user_id, product_id):
         return Response(status=status.HTTP_404_NOT_FOUND)
 
 
+# ******************************************************************************
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])  # Ensure the user is authenticated
+def checkout_view(request):
+    if request.method == 'POST':
+        # Get the cart items data from the request payload
+        cart_items_data = request.data.get('cartItems', [])
+
+        # Create an order for the user
+        order = Order.objects.create()
+
+        # Iterate through cart items data and create CartItem objects associated with the order
+        for item_data in cart_items_data:
+            product_id = item_data.get('product')
+            quantity = item_data.get('quantity')
+
+            # Creating CartItem instances based on the provided data
+            cart_item = CartItem.objects.create(
+                user=request.user,  # Retrieve the user from the request
+                product_id=product_id,
+                quantity=quantity,
+                order=order  # Associate the cart item with the newly created order
+            )
+
+        return Response({'message': 'Checkout successful!'}, status=status.HTTP_201_CREATED)
+
+    return Response({'error': 'Invalid request.'}, status=status.HTTP_400_BAD_REQUEST)
 
     # new_order = Order()
     # new_order.save()
