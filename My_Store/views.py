@@ -144,8 +144,8 @@ def cart_items(request):
 # **show all the cart items per user and order is null**
 # ******************************************************
 
-# # @permission_classes([IsAuthenticated])
 @api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def user_cart_items(request, user_id):
     try:
         cart_items = CartItem.objects.filter(user=user_id, order__isnull=True)
@@ -191,8 +191,8 @@ def user_registration(request):
 # **delte product in cart item of user**
 # **************************************
 
-# # @permission_classes([IsAuthenticated])
 @api_view(['DELETE'])
+@permission_classes([IsAuthenticated])
 def delete_cart_item(request, user_id, product_id):
     try:
         cart_item = CartItem.objects.filter(user=user_id, product=product_id)
@@ -234,6 +234,7 @@ def checkout_view(request):
 # **********************************************
 
 @api_view(['POST'])
+@permission_classes([IsAuthenticated])  
 def clear_cart(request, user_id):
     if request.method == 'POST':
         CustomUser = get_user_model()  # Fetch your CustomUser model
