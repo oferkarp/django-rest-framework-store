@@ -31,8 +31,9 @@ def welcome_page(request):
     }
     return Response(api_endpoints)
 
-# ******************************************************************************
-
+# **************************
+# **get products to navbar**
+# **************************
 
 @api_view(['GET', 'POST'])
 def products(request):
@@ -73,8 +74,10 @@ def get_unique_categories(request):
         unique_categories = list(categories)
         return JsonResponse(unique_categories, safe=False, status=status.HTTP_200_OK)
 
-# ******************************************************************************
 
+# ************************
+# **not use in the front**
+# ************************
 
 @api_view(['GET', 'PUT', 'DELETE'])
 def product_detail(request, id):
@@ -116,8 +119,11 @@ def orders(request):
             return Response(order_serializer.data, status=status.HTTP_201_CREATED)
         return Response(order_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-# ******************************************************************************
+# ***************************
+# **show all the cart items**
+# ***************************
 
+# # @permission_classes([IsAuthenticated])
 @api_view(['GET', 'POST'])
 def cart_items(request):
     if request.method == 'GET':
@@ -132,14 +138,15 @@ def cart_items(request):
             return Response(cart_item_serializer.data, status=status.HTTP_201_CREATED)
         return Response(cart_item_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-# ******************************************************************************
-
+# ******************************************************
+# **show all the cart items per user and order is null**
+# ******************************************************
 
 # # @permission_classes([IsAuthenticated])
 @api_view(['GET'])
 def user_cart_items(request, user_id):
     try:
-        cart_items = CartItem.objects.filter(user=user_id)
+        cart_items = CartItem.objects.filter(user=user_id, order__isnull=True)
     except CartItem.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
     
@@ -147,8 +154,11 @@ def user_cart_items(request, user_id):
         cart_items_serializer = CartItemSerializer(cart_items, many=True)
         return Response(cart_items_serializer.data)
 
-# ******************************************************************************
-    
+
+# **********************************
+# **get id and return name of user**
+# **********************************
+
 def get_username_by_id(request, user_id):
     try:
         user = CustomUser.objects.get(pk=user_id)
@@ -159,7 +169,9 @@ def get_username_by_id(request, user_id):
     
 
 
-# ******************************************************************************
+# **********************************************
+# **register user - get data and register user**
+# **********************************************
 
 @api_view(['POST'])
 def user_registration(request):
@@ -173,8 +185,11 @@ def user_registration(request):
         return Response("Method not allowed", status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 
-# ******************************************************************************
+# **************************************
+# **delte product in cart item of user**
+# **************************************
 
+# # @permission_classes([IsAuthenticated])
 @api_view(['DELETE'])
 def delete_cart_item(request, user_id, product_id):
     try:
@@ -186,8 +201,9 @@ def delete_cart_item(request, user_id, product_id):
 
 
 # ******************************************************************************
+
 @api_view(['POST'])
-@permission_classes([IsAuthenticated])  # Ensure the user is authenticated
+@permission_classes([IsAuthenticated])  
 def checkout_view(request):
     if request.method == 'POST':
         # Get the cart items data from the request payload
@@ -212,6 +228,17 @@ def checkout_view(request):
         return Response({'message': 'Checkout successful!'}, status=status.HTTP_201_CREATED)
 
     return Response({'error': 'Invalid request.'}, status=status.HTTP_400_BAD_REQUEST)
+
+
+
+
+
+
+
+
+
+
+
 
     # new_order = Order()
     # new_order.save()
