@@ -26,6 +26,8 @@ def welcome_page(request):
             "token_refresh": "/token/refresh/",
             "user_name":"/user/<id>/",
             "user-registration":"/register/",
+            "checkout": "/checkout/", 
+            "orders": "/orders/"     
         },
         "additional_info": "Replace <id> with the respective ID in the URL."
     }
@@ -229,20 +231,21 @@ def checkout_view(request):
 
     return Response({'error': 'Invalid request.'}, status=status.HTTP_400_BAD_REQUEST)
 
+# **********************************************
+
+@api_view(['POST'])
+def clear_cart(request, user_id):
+    if request.method == 'POST':
+        try:
+            user = User.objects.get(id=user_id)
+        except User.DoesNotExist:
+            return Response({'error': 'Invalid user ID'}, status=status.HTTP_404_NOT_FOUND)
+
+        # Clear cart items for the user where order is null
+        CartItem.objects.filter(user=user, order__isnull=True).delete()
+
+        return Response({'message': 'Cart cleared successfully'}, status=status.HTTP_200_OK)
+
+    return Response({'error': 'Invalid request'}, status=status.HTTP_400_BAD_REQUEST)
 
 
-
-
-
-
-
-
-
-
-
-    # new_order = Order()
-    # new_order.save()
-    # cartItems = CartItem.objects.all() # bring cart items for this user. (all cart items that order = null)
-    # for item in cartItems:
-    #     item.order = new_order
-    #     item.save()
