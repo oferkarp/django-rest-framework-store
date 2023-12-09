@@ -203,7 +203,9 @@ def delete_cart_item(request, user_id, product_id):
         return Response(status=status.HTTP_404_NOT_FOUND)
 
 
-# ******************************************************************************
+# *************************
+# **checkout of cart item**
+# *************************
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])  
@@ -232,7 +234,9 @@ def checkout_view(request):
 
     return Response({'error': 'Invalid request.'}, status=status.HTTP_400_BAD_REQUEST)
 
-# **********************************************
+# *****************************************
+# **delte the cart items on specific user**
+# *****************************************
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])  
@@ -250,3 +254,20 @@ def clear_cart(request, user_id):
         return Response({'message': 'Cart cleared successfully'}, status=status.HTTP_200_OK)
 
     return Response({'error': 'Invalid request'}, status=status.HTTP_400_BAD_REQUEST)
+
+
+
+
+# **********************************************
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def user_orders(request, user_id):
+    try:
+        orders = Order.objects.filter(cartitem__user=user_id, cartitem__order__isnull=True).distinct()
+    except Order.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    
+    if request.method == 'GET':
+        orders_serializer = OrderSerializer(orders, many=True)
+        return Response(orders_serializer.data)
