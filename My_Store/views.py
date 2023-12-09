@@ -264,7 +264,7 @@ def clear_cart(request, user_id):
 @permission_classes([IsAuthenticated])
 def user_orders(request, user_id):
     try:
-        orders = Order.objects.filter(cartitem__user=user_id, cartitem__order__isnull=True).distinct()
+        orders = Order.objects.filter(user=user_id)
     except Order.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
     

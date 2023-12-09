@@ -37,9 +37,11 @@ class Product(models.Model):
     
 class Order(models.Model):
     create_date = models.DateTimeField(auto_now_add=True)
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)  
+
 
     def __str__(self):
-        return f"Cart for {self.create_date}"
+        return f"Cart for {self.create_date} user {self.user}"
     
 class CartItem(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
