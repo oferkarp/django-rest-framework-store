@@ -213,6 +213,7 @@ def checkout_view(request):
     if request.method == 'POST':
         # Get the cart items data from the request payload
         cart_items_data = request.data.get('cartItems', [])
+        user_id = request.data.get('userId')  # Get the user ID from the request payload
 
         # Create an order for the user
         order = Order.objects.create()
@@ -224,7 +225,7 @@ def checkout_view(request):
 
             # Creating CartItem instances based on the provided data
             cart_item = CartItem.objects.create(
-                user=request.user,  # Retrieve the user from the request
+                user_id=user_id,  # Link the cart item to the provided user ID
                 product_id=product_id,
                 quantity=quantity,
                 order=order  # Associate the cart item with the newly created order
@@ -256,9 +257,9 @@ def clear_cart(request, user_id):
     return Response({'error': 'Invalid request'}, status=status.HTTP_400_BAD_REQUEST)
 
 
-
-
-# **********************************************
+# ******************
+# **orders by user**
+# ******************
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
