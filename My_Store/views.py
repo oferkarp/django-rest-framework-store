@@ -262,13 +262,32 @@ def clear_cart(request, user_id):
 # ******************
 
 @api_view(['GET'])
-# @permission_classes([IsAuthenticated])
+@permission_classes([IsAuthenticated])  
 def user_orders(request, user_id):
     try:
-        orders = Order.objects.filter(user=user_id)
+        orders = Order.objects.filter(cartitem__user=user_id, cartitem__order__isnull=False).distinct()
     except Order.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
     
     if request.method == 'GET':
-        orders_serializer = OrderSerializer(orders, many=True)
-        return Response(orders_serializer.data)
+        orders_data = []
+        for order in orders:
+            order_data = {
+                'id': order.id,
+                'create_date': order.create_date,
+                'user_id': order.user.id,
+                'cart_items': []  # Placeholder for cart items
+            }
+            cart_items = CartItem.objects.filter(order=order)
+            for cart_item in cart_items:
+                cart_item_info = {
+                    'product': cart_item.product.id,
+                    'quantity': cart_item.quantity,
+                    # Add other cart item details as needed
+                }
+                order_data['cart_items'].append(cart_item_info)
+            orders_data.append(order_data)
+
+        return Response(orders_data)
+    
+    return Response({'error': 'Invalid request.'}, status=status.HTTP_400_BAD_REQUEST)
