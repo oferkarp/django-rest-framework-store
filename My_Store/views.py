@@ -211,24 +211,24 @@ def delete_cart_item(request, user_id, product_id):
 @permission_classes([IsAuthenticated])  
 def checkout_view(request):
     if request.method == 'POST':
-        # Get the cart items data from the request payload
         cart_items_data = request.data.get('cartItems', [])
         user_id = request.data.get('userId')  # Get the user ID from the request payload
 
-        # Create an order for the user
-        order = Order.objects.create()
+        # Ensure the user_id is valid and exists
+        if not CustomUser.objects.filter(id=user_id).exists():
+            return Response({'error': 'Invalid user ID'}, status=status.HTTP_400_BAD_REQUEST)
 
-        # Iterate through cart items data and create CartItem objects associated with the order
+        order = Order.objects.create(user_id=user_id)  # Create an order for the user
+
         for item_data in cart_items_data:
             product_id = item_data.get('product')
             quantity = item_data.get('quantity')
 
-            # Creating CartItem instances based on the provided data
             cart_item = CartItem.objects.create(
                 user_id=user_id,  # Link the cart item to the provided user ID
                 product_id=product_id,
                 quantity=quantity,
-                order=order  # Associate the cart item with the newly created order
+                order=order
             )
 
         return Response({'message': 'Checkout successful!'}, status=status.HTTP_201_CREATED)
@@ -262,7 +262,7 @@ def clear_cart(request, user_id):
 # ******************
 
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
 def user_orders(request, user_id):
     try:
         orders = Order.objects.filter(user=user_id)
