@@ -6,6 +6,9 @@
 
 Welcome Page (welcome_page): Provides an overview of available API endpoints.
 
+you can visit here to see the web:
+-https://django-rest-framework-store.onrender.com
+
 1.Product Operations:
 
 2.Products (products):
@@ -47,6 +50,3 @@ Cart Management:
 User Order History:
 
 13.User Orders (user_orders): Retrieves orders placed by a specific user.
-
-you can visit here to see the web:
--https://django-rest-framework-store.onrender.com
